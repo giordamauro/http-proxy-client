@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-3.2.xsd
+						http://www.springframework.org/schema/util 
+						http://www.springframework.org/schema/util/spring-util-3.2.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx.xsd
+						http://www.springframework.org/schema/jee 
+						http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+						http://www.springframework.org/schema/aop
+						http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+
+	<context:annotation-config />
+
+	<context:property-placeholder location="classpath:/execution.properties" />
+
+	<bean id="defaultHttpClient" class="org.apache.http.impl.client.DefaultHttpClient"/>
+
+	<bean id="httpFactory" class="com.http.impl.httpclient.BasicAuthHttpFactory">
+		<constructor-arg type="org.apache.http.client.HttpClient" ref="defaultHttpClient" />
+		<constructor-arg index="1" value="${public-api.host}" />
+		<constructor-arg index="2" value="${admin.username}" />
+		<constructor-arg index="3" value="${admin.password}" />
+	</bean>
+
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="httpFactory" />
+		<property name="targetMethod" value="setPathParam" />
+		<property name="arguments">
+			<list>
+				<value>organization</value>
+				<value>${organization.name}</value>
+			</list>
+		</property>
+	</bean>
+
+
+	<bean id="gsonBuilder" class="com.google.gson.GsonBuilder"/>
+
+	<bean id="exceptionDeserializer" class="com.apigee.proxy.ExceptionJsonDeserializer">
+		<constructor-arg>
+			<util:map>
+				<entry key="messaging.config.beans.ApplicationDoesNotExist" value="com.apigee.model.exceptions.apis.ApiDoesNotExistException"/>
+				<entry key="messaging.config.beans.ApplicationRevisionDoesNotExist" value="com.apigee.model.exceptions.apis.ApiRevisionDoesNotExistException"/>
+				<entry key="messaging.config.beans.ProxyEndpointDoesNotExist" value="com.apigee.model.exceptions.apis.ProxyEndpointDoesNotExistException"/>
+				<entry key="messaging.config.beans.TargetEndpointDoesNotExist" value="com.apigee.model.exceptions.apis.TargetEndpointDoesNotExistException"/>
+				<entry key="messaging.config.beans.ResourceAlreadyExists" value="com.apigee.model.resourcefiles.exceptions.ResourceFileAlreadyExistsException"/>
+			</util:map>
+		</constructor-arg>
+	</bean>
+	
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	   <property name="targetObject" ref="gsonBuilder"/>
+	   <property name="targetMethod" value="registerTypeAdapter"/>
+	   <property name="arguments">
+	     <list>
+	       <bean class="java.lang.Class" factory-method="forName">
+	       		<constructor-arg type="java.lang.String" value="java.lang.Exception"/>
+	       </bean>
+	       <ref bean="exceptionDeserializer"/>
+	     </list>
+	   </property>
+	 </bean>
+
+	<bean id="gson" class="com.util.GsonFactoryBean">
+		<constructor-arg type="com.google.gson.GsonBuilder" ref="gsonBuilder" />
+	</bean>
+
+	<bean id="metadataHandler" class="com.http.proxy.impl.ApiMetadataHandlerImpl" />
+	<bean id="resultHandler" class="com.http.proxy.impl.ApiResultHandlerImpl">
+		<constructor-arg type="com.google.gson.Gson" ref="gson"/>
+	</bean>
+
+	<bean id="apiMethodHandler" class="com.http.proxy.impl.ApiMethodHandlerImpl">
+		<constructor-arg type="com.http.proxy.ApiMetadataHandler"
+			ref="metadataHandler" />
+		<constructor-arg type="com.http.model.HttpFactory"
+			ref="httpFactory" />
+		<constructor-arg type="com.http.proxy.ApiResultHandler"
+			ref="resultHandler" />
+	</bean>
+
+	<bean id="apiProxyFactory" class="com.http.proxy.ApiProxyFactory">
+		<constructor-arg type="com.http.proxy.ApiMethodHandler"
+			ref="apiMethodHandler" />
+	</bean>
+
+<!-- Curl configuration -->
+	
+	<bean id="curlApiMethodHandler" class="com.http.proxy.impl.CurlApiMethodHandlerImpl">
+		<constructor-arg type="com.http.proxy.ApiMetadataHandler"
+			ref="metadataHandler" />
+		<constructor-arg type="com.http.model.HttpFactory"
+			ref="httpFactory" />
+	</bean>
+
+	<bean id="curlApiProxyFactory" class="com.http.proxy.ApiProxyFactory">
+		<constructor-arg type="com.http.proxy.ApiMethodHandler"
+			ref="curlApiMethodHandler" />
+	</bean>
+	
+	<bean id="curlApigeeApiFactoryBean" class="com.util.ProxyFactoryBean">
+      <constructor-arg type="com.http.proxy.ApiProxyFactory" ref="curlApiProxyFactory"/>
+    	<constructor-arg type="java.lang.Class" value="com.apigee.apis.ApigeeAPI"/>
+    </bean>
+    
+    <bean id="curlConfigurationManagementApiFactoryBean" class="com.util.ProxyFactoryBean">
+      <constructor-arg type="com.http.proxy.ApiProxyFactory" ref="curlApiProxyFactory"/>
+    	<constructor-arg type="java.lang.Class" value="com.apigee.apis.GatewayAPI"/>
+    </bean>
+</beans>

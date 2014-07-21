@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+extraProperties=
+projectKey=mgiorda\:http-proxy-client
+serverUrl=http\://localhost\:8090/sonar
+version=2
