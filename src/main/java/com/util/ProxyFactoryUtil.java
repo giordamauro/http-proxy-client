@@ -4,6 +4,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.LongSerializationPolicy;
 import com.http.impl.httpclient.HttpClientFactory;
 import com.http.model.HttpFactory;
 import com.http.proxy.ApiMetadataHandler;
@@ -27,10 +28,12 @@ public final class ProxyFactoryUtil {
 			HttpFactory httpFactory = new HttpClientFactory(client, host);
 
 			GsonBuilder gsonBuilder = new GsonBuilder();
-			GsonFactoryBean gsonFactoryBean = new GsonFactoryBean(gsonBuilder);
+			gsonBuilder.serializeNulls();
+			gsonBuilder.disableHtmlEscaping();
+			gsonBuilder.setLongSerializationPolicy(LongSerializationPolicy.STRING);
 
 			ApiMetadataHandler metadataHandler = new ApiMetadataHandlerImpl();
-			ApiResultHandler resultHandler = new ApiResultHandlerImpl(gsonFactoryBean.getObject());
+			ApiResultHandler resultHandler = new ApiResultHandlerImpl(gsonBuilder.create());
 
 			ApiMethodHandler methodHandler = new ApiMethodHandlerImpl(metadataHandler, httpFactory, resultHandler);
 
