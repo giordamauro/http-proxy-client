@@ -2,26 +2,35 @@ package com.http.proxy;
 
 import java.util.List;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import com.util.ProxyFactoryUtil;
 
 public class MainTest {
 
-    private static final ApplicationContext context = new ClassPathXmlApplicationContext("application-context.xml");
+	public static void main(String[] args) throws Exception {
 
-    private static final ApiProxyFactory apiProxyFactory = context.getBean("apiProxyFactory", ApiProxyFactory.class);
+		String host = "http://localhost:808/fuchibol-server";
+		ApiProxyFactory apiProxyFactory = ProxyFactoryUtil.getDefaultProxyFactory(host);
 
-    public static void main(String[] args) {
+		Apis apisAPI = apiProxyFactory.getProxy(Apis.class);
 
-        Apis apisAPI = apiProxyFactory.getProxy(Apis.class);
+		List<String> apis = apisAPI.getApis();
 
-        List<String> apis = apisAPI.getApis();
+		ApiRevisions apiRevisions;
+		apiRevisions = apisAPI.getApiRevisions(apis.get(0));
+		int integer = apiRevisions.getRevision().get(0);
 
-        ApiRevisions apiRevisions;
-        apiRevisions = apisAPI.getApiRevisions(apis.get(0));
-        int integer = apiRevisions.getRevision().get(0);
+		System.out.println("Revision: " + integer);
 
-        System.out.println("Revision: " + integer);
+	}
 
-    }
+	// <bean id="exceptionDeserializer"
+	// class="com.apigee.proxy.ExceptionJsonDeserializer">
+	// <constructor-arg>
+	// <util:map>
+	// <entry key="messaging.config.beans.ApplicationDoesNotExist"
+	// value="com.apigee.model.exceptions.apis.ApiDoesNotExistException"/>
+	// </util:map>
+	// </constructor-arg>
+	// </bean>
+
 }

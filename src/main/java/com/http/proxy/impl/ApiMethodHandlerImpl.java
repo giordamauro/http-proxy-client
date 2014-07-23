@@ -29,14 +29,14 @@ public class ApiMethodHandlerImpl extends AbstractMethodHandler {
 
 	private final ApiResultHandler resultHandler;
 
-	public ApiMethodHandlerImpl(ApiMetadataHandler metadataHandler, HttpFactory requestFactory, ApiResultHandler errorHandler) {
+	public ApiMethodHandlerImpl(ApiMetadataHandler metadataHandler, HttpFactory requestFactory, ApiResultHandler resultHandler) {
 
-		if (metadataHandler == null || requestFactory == null || errorHandler == null) {
+		if (metadataHandler == null || requestFactory == null || resultHandler == null) {
 
 			throw new IllegalArgumentException("MetadataHandler, requestFactory and resultHandler cannot be null");
 		}
 		this.metadataHandler = metadataHandler;
-		this.resultHandler = errorHandler;
+		this.resultHandler = resultHandler;
 		this.requestFactory = requestFactory;
 	}
 
