@@ -1,16 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>mgiorda</groupId>
-	<artifactId>http-proxy-client</artifactId>
+	<groupId>tandil-amigos</groupId>
+	<artifactId>fuchibol-client-sample</artifactId>
 	<version>0.0.1</version>
 
 	<properties>
-	
-		<httpclient.version>4.1.1</httpclient.version>
+		<fuchibol-api-model.version>0.0.1-SNAPSHOT</fuchibol-api-model.version>
+		<http-proxy-client.version>0.0.1-SNAPSHOT</http-proxy-client.version>
 		<gson.version>2.2.4</gson.version>
 		<log4j.version>1.2.17</log4j.version>
-		<ws.rs.version>1.1.1</ws.rs.version>
 
 		<maven.compiler.version>2.3.2</maven.compiler.version>
 
@@ -19,10 +18,17 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>${httpclient.version}</version>
+			<groupId>tandil-amigos</groupId>
+			<artifactId>fuchibol-api-model</artifactId>
+			<version>${fuchibol-api-model.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>mgiorda</groupId>
+			<artifactId>http-proxy-client</artifactId>
+			<version>${http-proxy-client.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -32,11 +38,6 @@
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>${log4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>jsr311-api</artifactId>
-			<version>${ws.rs.version}</version>
 		</dependency>
 
 	</dependencies>

@@ -1,0 +1,70 @@
+2014-07-24 17:23:29,413 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 17:23:29,436 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiorda"
+2014-07-24 17:23:52,487 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 17:23:52,506 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiorda"
+2014-07-24 17:23:52,746 INFO - Response: 200, Headers: {Date=Thu, 24 Jul 2014 20:23:52 GMT, Content-Length=147, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 17:23:52,748 INFO - Parsing json: '{"username":null,"email":"giordamauro@gmail.com","name":"Mauro","lastName":"Giorda","profilePicture":null,"registrationDate":"2014-07-24 17:23:52"}'
+2014-07-24 17:24:25,123 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 17:24:25,145 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiorda"
+2014-07-24 17:24:25,331 INFO - Response: 200, Headers: {Date=Thu, 24 Jul 2014 20:24:25 GMT, Content-Length=147, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 17:24:25,333 INFO - Parsing json: '{"username":null,"email":"giordamauro@gmail.com","name":"Mauro","lastName":"Giorda","profilePicture":null,"registrationDate":"2014-07-24 17:24:25"}'
+2014-07-24 17:24:44,470 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 17:24:44,490 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiorda"
+2014-07-24 17:24:44,661 INFO - Response: 200, Headers: {Date=Thu, 24 Jul 2014 20:24:44 GMT, Content-Length=147, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 17:24:44,666 INFO - Parsing json: '{"username":null,"email":"giordamauro@gmail.com","name":"Mauro","lastName":"Giorda","profilePicture":null,"registrationDate":"2014-07-24 17:24:44"}'
+2014-07-24 17:25:17,238 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 17:25:17,257 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 17:25:17,429 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 20:25:17 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 17:25:17,429 WARN - Response not successful - Code: 400
+2014-07-24 17:33:14,232 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 17:33:14,304 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 17:33:14,552 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 20:33:14 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 17:33:14,552 WARN - Response not successful - Code: 400
+2014-07-24 17:41:06,852 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 17:41:06,874 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 17:41:07,084 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 20:41:07 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 17:41:07,084 WARN - Response not successful - Code: 400
+2014-07-24 17:42:01,813 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 17:42:01,835 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 17:42:02,024 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 20:42:02 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 17:42:02,025 WARN - Response not successful - Code: 400
+2014-07-24 17:43:41,426 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 17:43:41,446 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 17:43:41,636 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 20:43:41 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 17:43:41,637 WARN - Response not successful - Code: 400
+2014-07-24 17:57:41,001 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 17:57:41,022 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 17:57:41,203 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 20:57:41 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 17:57:41,203 WARN - Response not successful - Code: 400
+2014-07-24 17:59:32,522 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 17:59:32,543 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 17:59:32,743 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 20:59:32 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 17:59:32,743 WARN - Response not successful - Code: 400
+2014-07-24 18:20:36,949 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 18:20:36,968 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 18:20:37,155 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 21:20:37 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 18:20:37,156 WARN - Response not successful - Code: 400
+2014-07-24 18:28:00,610 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 18:28:00,631 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 18:28:00,819 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 21:28:00 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 18:28:00,819 WARN - Response not successful - Code: 400
+2014-07-24 18:28:34,467 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 18:28:34,490 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 18:28:34,677 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 21:28:34 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 18:28:34,678 WARN - Response not successful - Code: 400
+2014-07-24 18:34:27,790 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 18:34:27,810 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 18:34:27,996 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 21:34:27 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 18:34:27,996 WARN - Response not successful - Code: 400
+2014-07-24 18:38:25,662 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 18:38:25,682 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 18:38:25,861 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 21:38:25 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 18:38:25,862 WARN - Response not successful - Code: 400
+2014-07-24 18:41:25,079 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 18:41:25,099 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 18:41:25,284 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 21:41:25 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 18:41:25,285 WARN - Response not successful - Code: 400
+2014-07-24 18:42:25,991 INFO - Invoking service method: 'UserApi.getUser(String)'
+2014-07-24 18:42:26,011 INFO - curl -k -v -X GET "http://localhost:8080/fuchibol-server/v1/rest/users/mgiordas"
+2014-07-24 18:42:26,196 INFO - Response: 400, Headers: {Date=Thu, 24 Jul 2014 21:42:26 GMT, Content-Length=203, Connection=close, Content-Type=application/json, Server=Apache-Coyote/1.1}
+2014-07-24 18:42:26,196 WARN - Response not successful - Code: 400
