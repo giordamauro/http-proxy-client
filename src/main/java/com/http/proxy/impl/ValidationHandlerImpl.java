@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
+import javax.validation.ValidationException;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.Future;
@@ -86,7 +87,7 @@ public class ValidationHandlerImpl implements ValidationHandler {
     }
 
     @Override
-    public void validateMethodCall(Class<?> interfaceClass, Method method, Object[] args) throws Exception {
+    public void validateMethodCall(Class<?> interfaceClass, Method method, Object[] args) throws ValidationException {
 
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         List<String> messages = new ArrayList<>();
@@ -241,7 +242,7 @@ public class ValidationHandlerImpl implements ValidationHandler {
 
         String methodName = getMethodName(method);
 
-        throw new IllegalArgumentException(String.format("Invalid Api call to %s '%s': %s", interfaceClass, methodName, messages));
+        throw new ValidationException(String.format("Invalid Api call to %s '%s': %s", interfaceClass, methodName, messages));
     }
 
     private String getMethodName(Method method) {
