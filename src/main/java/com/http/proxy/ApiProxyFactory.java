@@ -12,7 +12,7 @@ public class ApiProxyFactory {
 
 	private final InvocationHandler invocationHandler;
 
-	public ApiProxyFactory(final ApiMethodHandler apiHandler) {
+	public ApiProxyFactory(final ApiMethodHandler apiHandler, final ValidationHandler validationHandler) {
 
 		if (apiHandler == null) {
 
@@ -23,9 +23,19 @@ public class ApiProxyFactory {
 
 			public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
 
+				if (validationHandler != null) {
+
+					Class<?> interfaceClass = proxy.getClass().getInterfaces()[0];
+					validationHandler.validateMethodCall(interfaceClass, method, args);
+				}
+
 				return apiHandler.handleMethodCall(method, args);
 			}
 		};
+	}
+
+	public ApiProxyFactory(final ApiMethodHandler apiHandler) {
+		this(apiHandler, null);
 	}
 
 	public <T> T getProxy(Class<T> interfaceClass) {
