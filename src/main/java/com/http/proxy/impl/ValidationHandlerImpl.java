@@ -123,27 +123,14 @@ public class ValidationHandlerImpl implements ValidationHandler {
     private ConstraintValidator<?, ?> getValidatorForAnnotation(Annotation annotation, Object value) {
 
         ConstraintValidator<?, ?> annValidator = null;
-        Class<? extends ConstraintValidator<?, ?>> validatorClass = validators.get(annotation.annotationType());
+
+        Class<? extends Annotation> annotationType = annotation.annotationType();
+        Class<? extends ConstraintValidator<?, ?>> validatorClass = validators.get(annotationType);
 
         if (validatorClass == null && value != null) {
 
             Class<?> valueClass = value.getClass();
-            Map<Class<?>, Class<? extends ConstraintValidator<?, ?>>> specValidators = specificValidators.get(annotation.annotationType());
-
-            if (specValidators != null) {
-                List<Class<?>> keys = new ArrayList<Class<?>>(specValidators.keySet());
-                int i = 0;
-                while (validatorClass == null && i < keys.size()) {
-
-                    Class<?> validatorValueClass = keys.get(i);
-                    if (validatorValueClass.isAssignableFrom(valueClass)) {
-
-                        validatorClass = specValidators.get(validatorValueClass);
-                    } else {
-                        i++;
-                    }
-                }
-            }
+            validatorClass = getSpecificValidatorClass(annotationType, valueClass);
         }
 
         if (validatorClass != null) {
@@ -152,9 +139,35 @@ public class ValidationHandlerImpl implements ValidationHandler {
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
+        } else if (annotationType.getName().startsWith("javax.validation.constraints")) {
+            throw new UnsupportedOperationException(String.format("Validation support for spec. annotation %s should be added to this client", annotationType.getName()));
         }
 
         return annValidator;
+    }
+
+    private Class<? extends ConstraintValidator<?, ?>> getSpecificValidatorClass(Class<? extends Annotation> annotationType, Class<?> valueClass) {
+
+        Class<? extends ConstraintValidator<?, ?>> validatorClass = null;
+
+        Map<Class<?>, Class<? extends ConstraintValidator<?, ?>>> specValidators = specificValidators.get(annotationType);
+
+        if (specValidators != null) {
+            List<Class<?>> keys = new ArrayList<Class<?>>(specValidators.keySet());
+            int i = 0;
+            while (validatorClass == null && i < keys.size()) {
+
+                Class<?> validatorValueClass = keys.get(i);
+                if (validatorValueClass.isAssignableFrom(valueClass)) {
+
+                    validatorClass = specValidators.get(validatorValueClass);
+                } else {
+                    i++;
+                }
+            }
+        }
+
+        return validatorClass;
     }
 
     private <T> T invokeMethod(Object target, String methodName, Object... value) {
