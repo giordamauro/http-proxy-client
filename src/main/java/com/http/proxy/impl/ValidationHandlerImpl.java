@@ -48,186 +48,245 @@ import com.http.proxy.impl.validator.NotEmptyValidator;
 
 public class ValidationHandlerImpl implements ValidationHandler {
 
-	private static final Validator validator;
+    private static final Validator validator;
 
-	private static final Map<Class<? extends Annotation>, ConstraintValidator<?, ?>> validators = new HashMap<>();
-	private static final Map<Class<? extends Annotation>, Map<Class<?>, ConstraintValidator<?, ?>>> specificValidators = new HashMap<>();
+    private static final Map<Class<? extends Annotation>, Class<? extends ConstraintValidator<?, ?>>> validators = new HashMap<>();
+    private static final Map<Class<? extends Annotation>, Map<Class<?>, Class<? extends ConstraintValidator<?, ?>>>> specificValidators = new HashMap<>();
 
-	static {
+    static {
 
-		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		validator = factory.getValidator();
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
 
-		validators.put(NotNull.class, new NotNullValidator());
-		validators.put(Email.class, new EmailValidator());
-		validators.put(NotBlank.class, new NotBlankValidator());
-		validators.put(NotEmpty.class, new NotEmptyValidator());
-		validators.put(Length.class, new LengthValidator());
-		validators.put(Future.class, new FutureValidatorForDate());
-		validators.put(Past.class, new PastValidatorForDate());
-		validators.put(Pattern.class, new PatternValidator());
+        validators.put(NotNull.class, NotNullValidator.class);
+        validators.put(Email.class, EmailValidator.class);
+        validators.put(NotBlank.class, NotBlankValidator.class);
+        validators.put(NotEmpty.class, NotEmptyValidator.class);
+        validators.put(Length.class, LengthValidator.class);
+        validators.put(Future.class, FutureValidatorForDate.class);
+        validators.put(Past.class, PastValidatorForDate.class);
+        validators.put(Pattern.class, PatternValidator.class);
 
-		Map<Class<?>, ConstraintValidator<?, ?>> minValidators = new HashMap<>();
-		minValidators.put(CharSequence.class, new MinValidatorForCharSequence());
-		minValidators.put(Number.class, new MinValidatorForNumber());
-		specificValidators.put(Min.class, minValidators);
+        Map<Class<?>, Class<? extends ConstraintValidator<?, ?>>> minValidators = new HashMap<>();
+        minValidators.put(CharSequence.class, MinValidatorForCharSequence.class);
+        minValidators.put(Number.class, MinValidatorForNumber.class);
+        specificValidators.put(Min.class, minValidators);
 
-		Map<Class<?>, ConstraintValidator<?, ?>> maxValidators = new HashMap<>();
-		maxValidators.put(CharSequence.class, new MaxValidatorForCharSequence());
-		maxValidators.put(Number.class, new MaxValidatorForNumber());
-		specificValidators.put(Max.class, maxValidators);
+        Map<Class<?>, Class<? extends ConstraintValidator<?, ?>>> maxValidators = new HashMap<>();
+        maxValidators.put(CharSequence.class, MaxValidatorForCharSequence.class);
+        maxValidators.put(Number.class, MaxValidatorForNumber.class);
+        specificValidators.put(Max.class, maxValidators);
 
-		Map<Class<?>, ConstraintValidator<?, ?>> sizeValidators = new HashMap<>();
-		maxValidators.put(Object[].class, new SizeValidatorForArray());
-		maxValidators.put(Collection.class, new SizeValidatorForCollection());
-		maxValidators.put(CharSequence.class, new SizeValidatorForCharSequence());
-		specificValidators.put(Max.class, sizeValidators);
+        Map<Class<?>, Class<? extends ConstraintValidator<?, ?>>> sizeValidators = new HashMap<>();
+        maxValidators.put(Object[].class, SizeValidatorForArray.class);
+        maxValidators.put(Collection.class, SizeValidatorForCollection.class);
+        maxValidators.put(CharSequence.class, SizeValidatorForCharSequence.class);
+        specificValidators.put(Max.class, sizeValidators);
 
-	}
+    }
 
-	@Override
-	public void validateMethodCall(Class<?> interfaceClass, Method method, Object[] args) throws Exception {
+    @Override
+    public void validateMethodCall(Class<?> interfaceClass, Method method, Object[] args) throws Exception {
 
-		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-		List<String> messages = new ArrayList<>();
+        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        List<String> messages = new ArrayList<>();
 
-		for (int i = 0; i < parameterAnnotations.length; i++) {
+        for (int i = 0; i < parameterAnnotations.length; i++) {
 
-			Annotation[] argumentAnnotations = parameterAnnotations[i];
-			for (Annotation annotation : argumentAnnotations) {
+            Annotation[] argumentAnnotations = parameterAnnotations[i];
+            Object value = args[i];
 
-				ConstraintValidator<?, ?> validatorForAnnotation = getValidatorForAnnotation(annotation);
-				if (validatorForAnnotation != null) {
+            for (Annotation annotation : argumentAnnotations) {
 
-					validatorForAnnotation.initialize(annotation);
+                ConstraintValidator<?, ?> validatorForAnnotation = getValidatorForAnnotation(annotation, value);
+                if (validatorForAnnotation != null) {
 
-					Object value = args[i];
-					if (!validatorForAnnotation.isValid(value, null)) {
+                    invokeMethod(validatorForAnnotation, "initialize", annotation);
+                    boolean validValue = invokeMethod(validatorForAnnotation, "isValid", value, null);
+                    if (!validValue) {
 
-						String field = getFieldForIndex(parameterAnnotations, i);
-						String violationMessage = getAnnotationMessage(annotation);
-						messages.add(String.format("Violation on argument '%s' of value '%s': %s", field, value, violationMessage));
-					}
-				}
-			}
-		}
+                        String field = getFieldForIndex(parameterAnnotations, i);
+                        String violationMessage = getAnnotationMessage(annotation);
+                        messages.add(String.format("Violation on argument '%s' of value '%s': %s", field, value, violationMessage));
+                    }
+                }
+            }
+        }
 
-		validateArguments(interfaceClass, method, args);
-	}
+        if (!messages.isEmpty()) {
+            throwValidationException(interfaceClass, method, messages);
+        }
 
-	private ConstraintValidator<?, ?> getValidatorForAnnotation(Annotation annotation) {
+        validateArguments(interfaceClass, method, args);
+    }
 
-		ConstraintValidator<?, ?> annValidator = validators.get(annotation.annotationType());
+    private ConstraintValidator<?, ?> getValidatorForAnnotation(Annotation annotation, Object value) {
 
-		if (annValidator == null) {
-			Map<Class<?>, ConstraintValidator<?, ?>> map = specificValidators.get(annotation.annotationType());
-		}
+        ConstraintValidator<?, ?> annValidator = null;
+        Class<? extends ConstraintValidator<?, ?>> validatorClass = validators.get(annotation.annotationType());
 
-		return annValidator;
-	}
+        if (validatorClass == null && value != null) {
 
-	private <T extends Annotation> String getAnnotationMessage(T annotation) {
+            Class<?> valueClass = value.getClass();
+            Map<Class<?>, Class<? extends ConstraintValidator<?, ?>>> specValidators = specificValidators.get(annotation.annotationType());
 
-		Class<? extends Annotation> annotationType = annotation.annotationType();
-		try {
-			Method method = annotationType.getMethod("message");
-			Object value = method.invoke(annotation);
+            if (specValidators != null) {
+                List<Class<?>> keys = new ArrayList<Class<?>>(specValidators.keySet());
+                int i = 0;
+                while (validatorClass == null && i < keys.size()) {
 
-			return String.valueOf(value);
+                    Class<?> validatorValueClass = keys.get(i);
+                    if (validatorValueClass.isAssignableFrom(valueClass)) {
 
-		} catch (Exception e) {
-			throw new IllegalStateException(e);
-		}
-	}
+                        validatorClass = specValidators.get(validatorValueClass);
+                    } else {
+                        i++;
+                    }
+                }
+            }
+        }
 
-	private void validateArguments(Class<?> interfaceClass, Method method, Object[] args) {
+        if (validatorClass != null) {
+            try {
+                annValidator = validatorClass.newInstance();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
 
-		int argumentIndex = 0;
-		for (Object obj : args) {
+        return annValidator;
+    }
 
-			if (obj != null) {
-				Set<ConstraintViolation<Object>> objectViolations = validator.validate(obj);
+    private <T> T invokeMethod(Object target, String methodName, Object... value) {
 
-				if (!objectViolations.isEmpty()) {
+        Method method = findMethodForName(target.getClass(), methodName);
+        try {
+            Object returnValue = method.invoke(target, value);
 
-					List<String> messages = new ArrayList<>();
+            @SuppressWarnings("unchecked")
+            T castedReturnValue = (T) returnValue;
 
-					for (ConstraintViolation<Object> violation : objectViolations) {
-						messages.add(String.format("Violation on argument %s of type %s. Property '%s' value '%s': %s", argumentIndex, violation.getRootBeanClass().getName(),
-								violation.getPropertyPath(), violation.getInvalidValue(), violation.getMessage()));
-					}
+            return castedReturnValue;
 
-					throwValidationException(interfaceClass, method, messages);
-				}
-			}
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
-			argumentIndex++;
-		}
-	}
+    private Method findMethodForName(Class<? extends Object> baseClass, String methodName) {
 
-	private void throwValidationException(Class<?> interfaceClass, Method method, List<String> messages) {
+        Method[] methods = baseClass.getMethods();
+        for (Method method : methods) {
 
-		String methodName = getMethodName(method);
+            if (method.getName().equalsIgnoreCase(methodName)) {
+                return method;
+            }
+        }
+        return null;
+    }
 
-		throw new IllegalArgumentException(String.format("Invalid Api call to %s '%s': %s", interfaceClass, methodName, messages));
-	}
+    private <T extends Annotation> String getAnnotationMessage(T annotation) {
 
-	private String getMethodName(Method method) {
+        Class<? extends Annotation> annotationType = annotation.annotationType();
+        try {
+            Method method = annotationType.getMethod("message");
+            Object value = method.invoke(annotation);
 
-		String methodName = method.getName() + "(";
+            return String.valueOf(value);
 
-		Class<?>[] parameterTypes = method.getParameterTypes();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
-		for (int i = 0; i < parameterTypes.length; i++) {
+    private void validateArguments(Class<?> interfaceClass, Method method, Object[] args) {
 
-			Class<?> parameterType = parameterTypes[i];
+        int argumentIndex = 0;
+        for (Object obj : args) {
 
-			String field = getFieldForIndex(method.getParameterAnnotations(), i);
-			methodName += parameterType.getSimpleName() + " " + field + ", ";
-		}
+            if (obj != null) {
+                Set<ConstraintViolation<Object>> objectViolations = validator.validate(obj);
 
-		if (parameterTypes.length > 0) {
-			methodName = methodName.substring(0, methodName.length() - 2);
-		}
+                if (!objectViolations.isEmpty()) {
 
-		methodName += ")";
+                    List<String> messages = new ArrayList<>();
 
-		return methodName;
-	}
+                    for (ConstraintViolation<Object> violation : objectViolations) {
+                        messages.add(String.format("Violation on argument %s of type %s. Property '%s' value '%s': %s", argumentIndex, violation.getRootBeanClass().getName(),
+                                violation.getPropertyPath(), violation.getInvalidValue(), violation.getMessage()));
+                    }
 
-	private String getFieldForIndex(Annotation[][] parameterAnnotations, int index) {
+                    throwValidationException(interfaceClass, method, messages);
+                }
+            }
 
-		Annotation[] paramAnnotations = parameterAnnotations[index];
+            argumentIndex++;
+        }
+    }
 
-		String fieldName = getFieldName(paramAnnotations);
-		if (fieldName == null) {
-			fieldName = "arg" + index;
-		}
+    private void throwValidationException(Class<?> interfaceClass, Method method, List<String> messages) {
 
-		return fieldName;
-	}
+        String methodName = getMethodName(method);
 
-	private String getFieldName(Annotation[] paramAnnotations) {
+        throw new IllegalArgumentException(String.format("Invalid Api call to %s '%s': %s", interfaceClass, methodName, messages));
+    }
 
-		String fieldName = null;
+    private String getMethodName(Method method) {
 
-		int i = 0;
-		while (i < paramAnnotations.length && fieldName == null) {
+        String methodName = method.getName() + "(";
 
-			Annotation ann = paramAnnotations[i];
-			if (ann.annotationType().equals(PathParam.class)) {
-				PathParam pathAnn = (PathParam) ann;
-				fieldName = pathAnn.value();
-			} else if (ann.annotationType().equals(FormParam.class)) {
-				FormParam formAnn = (FormParam) ann;
-				fieldName = formAnn.value();
-			} else if (ann.annotationType().equals(QueryParam.class)) {
-				QueryParam queryAnn = (QueryParam) ann;
-				fieldName = queryAnn.value();
-			}
-			i++;
-		}
+        Class<?>[] parameterTypes = method.getParameterTypes();
 
-		return fieldName;
-	}
+        for (int i = 0; i < parameterTypes.length; i++) {
+
+            Class<?> parameterType = parameterTypes[i];
+
+            String field = getFieldForIndex(method.getParameterAnnotations(), i);
+            methodName += parameterType.getSimpleName() + " " + field + ", ";
+        }
+
+        if (parameterTypes.length > 0) {
+            methodName = methodName.substring(0, methodName.length() - 2);
+        }
+
+        methodName += ")";
+
+        return methodName;
+    }
+
+    private String getFieldForIndex(Annotation[][] parameterAnnotations, int index) {
+
+        Annotation[] paramAnnotations = parameterAnnotations[index];
+
+        String fieldName = getFieldName(paramAnnotations);
+        if (fieldName == null) {
+            fieldName = "arg" + index;
+        }
+
+        return fieldName;
+    }
+
+    private String getFieldName(Annotation[] paramAnnotations) {
+
+        String fieldName = null;
+
+        int i = 0;
+        while (i < paramAnnotations.length && fieldName == null) {
+
+            Annotation ann = paramAnnotations[i];
+            if (ann.annotationType().equals(PathParam.class)) {
+                PathParam pathAnn = (PathParam) ann;
+                fieldName = pathAnn.value();
+            } else if (ann.annotationType().equals(FormParam.class)) {
+                FormParam formAnn = (FormParam) ann;
+                fieldName = formAnn.value();
+            } else if (ann.annotationType().equals(QueryParam.class)) {
+                QueryParam queryAnn = (QueryParam) ann;
+                fieldName = queryAnn.value();
+            }
+            i++;
+        }
+
+        return fieldName;
+    }
 }

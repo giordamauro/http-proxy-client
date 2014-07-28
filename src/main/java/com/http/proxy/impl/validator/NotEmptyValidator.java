@@ -7,13 +7,13 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 public class NotEmptyValidator implements ConstraintValidator<NotEmpty, String> {
 
-	@Override
-	public void initialize(NotEmpty constraintAnnotation) {
-	}
+    @Override
+    public void initialize(NotEmpty constraintAnnotation) {
+    }
 
-	@Override
-	public boolean isValid(String value, ConstraintValidatorContext context) {
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
 
-		return value == null || value.length() == 0;
-	}
+        return value != null && value.length() != 0;
+    }
 }
